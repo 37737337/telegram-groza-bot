@@ -10,7 +10,7 @@ from telegram.ext import (
     filters,
 )
 
-TOKEN = "PASTE_YOUR_TOKEN_HERE"
+TOKEN = "8211838214:AAG1lG_RCKEKXB7Qv1f1pdwjc7K7z4DNbCo"
 DB_FILE = "users.json"
 
 # Создаём файл базы если нет
