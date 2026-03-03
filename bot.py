@@ -3,7 +3,7 @@ import os
 import asyncio
 from telegram import Update
 from telegram.ext import (
-    ApplicationBuilder,
+    Application,
     MessageHandler,
     CommandHandler,
     ContextTypes,
@@ -11,15 +11,14 @@ from telegram.ext import (
 )
 
 TOKEN = "8211838214:AAG1lG_RCKEKXB7Qv1f1pdwjc7K7z4DNbCo"
+
 DB_FILE = "users.json"
 
-# Создаём файл базы если нет
 if not os.path.exists(DB_FILE):
     with open(DB_FILE, "w") as f:
         json.dump([], f)
 
 
-# Сохраняем каждого кто писал
 async def save_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_chat.type not in ["group", "supergroup"]:
         return
@@ -35,23 +34,14 @@ async def save_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             json.dump(users, f)
 
 
-# Проверка админа
-async def is_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def all_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     member = await context.bot.get_chat_member(
         update.effective_chat.id,
         update.effective_user.id
     )
-    return member.status in ["administrator", "creator"]
 
-
-# Команда /all
-async def all_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    if update.effective_chat.type not in ["group", "supergroup"]:
-        await update.message.reply_text("Только в группе.")
-        return
-
-    if not await is_admin(update, context):
+    if member.status not in ["administrator", "creator"]:
         await update.message.reply_text("Только для админов.")
         return
 
@@ -81,7 +71,7 @@ async def all_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = Application.builder().token(TOKEN).build()
 
     app.add_handler(MessageHandler(filters.ALL, save_user))
     app.add_handler(CommandHandler("all", all_command))
